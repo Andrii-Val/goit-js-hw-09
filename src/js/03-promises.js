@@ -9,8 +9,8 @@ const components = {
 
 components.form.addEventListener('submit', onClick);
 
-function onClick(e) {
-  e.preventDefault();
+function onClick(event) {
+  event.preventDefault();
 
   const amountP = parseInt(components.amount.value);
   const delayStep = Number(components.step.value);
