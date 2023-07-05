@@ -21,7 +21,6 @@ function getRandomHexColor() {
     }
   }
   
- 
   stop.addEventListener('click', onClickStopBgChange);
   
   function onClickStopBgChange() {
