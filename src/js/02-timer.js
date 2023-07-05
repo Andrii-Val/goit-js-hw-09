@@ -1,56 +1,49 @@
 import flatpickr from 'flatpickr';
-
+import { Report } from 'notiflix/build/notiflix-report-aio';
 // import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/dark.css';
 // import 'notiflix/dist/notiflix-3.2.6.min.css';
 
-const datePicker = document.querySelector('#datetime-picker');
-const btnStart = document.querySelector('button[data-start]');
+const dateTime = document.querySelector('#datetime-picker');
+const dateStart = document.querySelector('button[data-start]');
 
-//Add placeholder in our datePicker(input)
-datePicker.setAttribute('placeholder', 'Choose required date');
 
-// Disabled start Button if date is not chosen.
-btnStart.setAttribute('disabled', 'disabled');
+dateTime.setAttribute('placeholder', 'Choose required date');
 
-//Create Button "Reset"
+dateStart.setAttribute('disabled', 'disabled');
+
 const createBtn = document.createElement('button');
-const resetBtn = btnStart.insertAdjacentElement('afterend', createBtn);
+const resetButton = dateStart.insertAdjacentElement('afterend', createBtn);
 
-resetBtn.textContent = 'Reset';
-resetBtn.setAttribute('type', 'button');
-resetBtn.setAttribute('data-reset', '');
-resetBtn.classList.add('is-hidden');
+resetButton.textContent = 'Reset';
+resetButton.setAttribute('type', 'button');
+resetButton.setAttribute('data-reset', '');
+resetButton.classList.add('is-hidden');
 
 const options = {
-  //   minDate: new Date(),
+
   enableTime: true,
   time_24hr: true,
-  //   defaultDate: new Date(),
   defaultDate: null,
   minuteIncrement: 1,
   onClose(selectedDates) {
-    // console.log(selectedDates[0]);
     const currentTime = Date.now();
 
-    // If date chosen correct the Button "Start" become available.
     if (selectedDates[0].getTime() < currentTime) {
       Report.warning('Oops!', 'Please choose future date!', 'Try Again');
     } else {
-      btnStart.removeAttribute('disabled');
+      dateStart.removeAttribute('disabled');
     }
   },
 };
 
-//Add custom calendar in Input
 flatpickr('#datetime-picker', options);
 
-// Getting HTML's spans.
-const reversTimerComponents = {
-  getDays: document.querySelector('span[data-days]'),
-  getHours: document.querySelector('span[data-hours]'),
-  getMinutes: document.querySelector('span[data-minutes]'),
-  getSeconds: document.querySelector('span[data-seconds]'),
+const reversTimer= {
+  dataDays: document.querySelector('span[data-days]'),
+  dataHours: document.querySelector('span[data-hours]'),
+  dataMinutes: document.querySelector('span[data-minutes]'),
+  dataSeconds: document.querySelector('span[data-seconds]'),
 };
 
 //Convert ms to Date
@@ -73,13 +66,15 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-// Adding zero if amount of figures less then 2.
+// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
+// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
+// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
 
-//Creating Functionality of Reveres Timer
-btnStart.addEventListener('click', onClickStartReversTimer);
+dateStart.addEventListener('click', onClickStartReversTimer);
 
 let intervalId = null;
 
@@ -87,59 +82,56 @@ function onClickStartReversTimer() {
   intervalId = setInterval(updateCounter, 1000);
 
   function updateCounter() {
-    let inputDate = new Date(datePicker.value);
+    let inputDate = new Date(dateTime.value);
     const currentDate = Date.now();
     const deltaTime = inputDate.getTime() - currentDate;
     const deltaTimeObj = convertMs(deltaTime);
 
-    //Test - if value is NaN abort function.
     if (isNaN(inputDate)) {
       Report.warning('Oops!', 'Please choose future date!', 'Try Again');
       clearInterval(intervalId);
 
       return;
     }
-
-    // Test - if user has chosen past date - abort function.
     if (deltaTime < 0) {
       clearInterval(intervalId);
-      resetBtn.classList.add('is-hidden');
-      btnStart.classList.remove('is-hidden');
-      datePicker.value = '';
+      resetButton.classList.add('is-hidden');
+      dateStart.classList.remove('is-hidden');
+      dateTime.value = '';
       return;
     }
 
-    reversTimerComponents.getDays.textContent = addLeadingZero(
+    reversTimer.dataDays.textContent = addLeadingZero(
       deltaTimeObj.days
     );
-    reversTimerComponents.getHours.textContent = addLeadingZero(
+    reversTimer.dataHours.textContent = addLeadingZero(
       deltaTimeObj.hours
     );
-    reversTimerComponents.getMinutes.textContent = addLeadingZero(
+    reversTimer.dataMinutes.textContent = addLeadingZero(
       deltaTimeObj.minutes
     );
-    reversTimerComponents.getSeconds.textContent = addLeadingZero(
+    reversTimer.dataSeconds.textContent = addLeadingZero(
       deltaTimeObj.seconds
     );
 
-    btnStart.classList.add('is-hidden');
-    resetBtn.classList.remove('is-hidden');
+    dateStart.classList.add('is-hidden');
+    resetButton.classList.remove('is-hidden');
   }
 }
 
-resetBtn.addEventListener('click', onClickClearInterval);
+resetButton.addEventListener('click', onClickClearInterval);
 
 function onClickClearInterval() {
-  //
+  
   clearInterval(intervalId);
 
-  reversTimerComponents.getDays.textContent = '00';
-  reversTimerComponents.getHours.textContent = '00';
-  reversTimerComponents.getMinutes.textContent = '00';
-  reversTimerComponents.getSeconds.textContent = '00';
+  reversTimer.dataDays.textContent = '00';
+  reversTimer.dataHours.textContent = '00';
+  reversTimer.dataMinutes.textContent = '00';
+  reversTimer.dataSeconds.textContent = '00';
 
-  datePicker.value = '';
+  dateTime.value = '';
 
-  resetBtn.classList.add('is-hidden');
-  btnStart.classList.remove('is-hidden');
+  resetButton.classList.add('is-hidden');
+  dateStart.classList.remove('is-hidden');
 }
